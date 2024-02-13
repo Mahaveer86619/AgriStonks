@@ -17,6 +17,8 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Mail
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -45,6 +47,8 @@ fun SignInScreen(
     val password = remember {
         mutableStateOf("")
     }
+
+    val isSigningIn by authViewModel.isSigningIn.collectAsState()
 
     Column(
         modifier = Modifier
@@ -133,7 +137,7 @@ fun SignInScreen(
 
                     authViewModel.signIn()
 
-                    if (!authViewModel.isSigningIn.value) {
+                    if (!isSigningIn) {
                         onBoardingViewModel.saveOnBoardingState(true) // completed = true
                         navHostController.popBackStack()
                         navHostController.navigate(Screens.HomeScreen.route)

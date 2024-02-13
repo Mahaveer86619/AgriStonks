@@ -263,7 +263,12 @@ fun UserRoleDropdown(
     onRoleSelected: (UserType) -> Unit,
 ) {
     val expanded = remember { mutableStateOf(false) }
-    val roles = listOf(UserType.FARMER, UserType.WAREHOUSE, UserType.SERVICE_PROVIDER)
+    val roles = listOf(
+        UserType.FARMER,
+        UserType.WAREHOUSE,
+        UserType.SERVICE_PROVIDER,
+        UserType.COMPANY
+    )
 
     Box(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(

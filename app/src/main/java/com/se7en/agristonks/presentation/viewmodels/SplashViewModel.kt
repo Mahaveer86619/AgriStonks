@@ -24,9 +24,6 @@ class SplashViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             _isLoading.value = true
-
-//            _startDestination.value = Screens.TestScreen.route
-//            _startDestination.value = Screens.HomeScreen.route
             if (SharedPreferences.isOnboardingCompleted()) {
                 _startDestination.value = Screens.HomeScreen.route
             } else {

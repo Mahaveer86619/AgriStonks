@@ -10,10 +10,10 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface AuthService {
-    @POST("/signin")
+    @POST("api/v1/signin")
     suspend fun signIn(@Body credentials: SignInRequest): Response<AuthDataModel>
 
-    @POST("/signup")
+    @POST("api/v1/signup")
     suspend fun signUp(@Body userDetails: SignUpRequest): Response<AuthDataModel>
 
     @GET("test/anon")

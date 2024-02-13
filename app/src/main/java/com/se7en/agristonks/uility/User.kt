@@ -13,4 +13,8 @@ enum class UserType(val typeName: String, val code: String) {
         typeName = "Service Provider",
         code = "ROLE_SERVICE"
     ),
+    COMPANY(
+        typeName = "Company",
+        code = "ROLE_COMPANY"
+    )
 }

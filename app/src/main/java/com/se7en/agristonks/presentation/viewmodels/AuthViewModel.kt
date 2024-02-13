@@ -87,47 +87,34 @@ class AuthViewModel @Inject constructor(
                 _isSigningIn.value = true
                 _error.value = ""
                 try {
-                    val response =
-                        authService.signIn(SignInRequest(emailState.value, passwordState.value))
+
+                    val response = authService.signIn(SignInRequest(emailState.value, passwordState.value))
+
                     if (response.isSuccessful) {
-                        val user: AuthDataModel? = response.body()
+                        val userInResponse: AuthDataModel? = response.body()
 
                         Log.d(
                             "DevTime",
-                            "Signed In, $user"
+                            "Signed In, $userInResponse"
                         )
 
-                        if (user != null) {
+                        if (userInResponse != null) {
                             // Storing user data securely
                             dataStorePref.saveUserDetails(
                                 AuthDataModel(
-                                    email = user.email,
-                                    token = user.token,
-                                    uname = user.uname,
-                                    id = user.id
+                                    email = userInResponse.email,
+                                    token = userInResponse.token,
+                                    uname = userInResponse.uname,
+                                    id = userInResponse.id
                                 )
                             )
-                            SharedPreferences.setTokenKey(user.token)
+                            SharedPreferences.setTokenKey(userInResponse.token)
                         } else {
                             _error.value = "User data missing in response"
                             return@launch
                         }
                     } else {
-                        when (response.code()) {
-                            401 -> {
-                                _error.value = "Invalid credentials"
-                                return@launch
-                            }
-                            404 -> {
-                                _error.value = "Not found"
-                                return@launch
-                            }
-                            // Handle other specific error codes with appropriate messages
-                            else -> {
-                                _error.value = "Oops, something went wrong!"
-                                return@launch
-                            }
-                        }
+                        handleNetworkError(response.code())
                     }
                 } catch (e: Exception) {
                     _error.value = e.message.toString()
@@ -148,8 +135,6 @@ class AuthViewModel @Inject constructor(
                 _error.value = ""
                 try {
 
-
-
                     val response = authService.signUp(
                         SignUpRequest(
                             uname = usernameState.value,
@@ -159,22 +144,24 @@ class AuthViewModel @Inject constructor(
                         )
                     )
 
-                    Log.d(
-                        "DevTime",
-                        "What we send.\nuname = ${usernameState.value}\nemail = ${emailState.value}\npass = ${passwordState.value}\nrole = ${roleState.value}"
-                    )
-
                     if (response.isSuccessful) {
-                        val user = response.body()
+                        val userInResponse = response.body()
 
                         Log.d(
                             "DevTime",
-                            "Signed up, $user"
+                            "Signed up, $userInResponse"
                         )
 
-                        if (user != null) {
-                            // Store user data securely (e.g., using SharedPreferences)
-                            SharedPreferences.setTokenKey(user.token)
+                        if (userInResponse != null) {
+                            dataStorePref.saveUserDetails(
+                                AuthDataModel(
+                                    email = userInResponse.email,
+                                    token = userInResponse.token,
+                                    uname = userInResponse.uname,
+                                    id = userInResponse.id
+                                )
+                            )
+                            SharedPreferences.setTokenKey(userInResponse.token)
                         } else {
                             _error.value = "User data missing in response"
                             Log.d(
@@ -217,7 +204,6 @@ class AuthViewModel @Inject constructor(
                     "DevTime",
                     "error, ${_error.value}"
                 )
-                // Handle bad request error (e.g., display to user, retry)
                 return
             }
             401 -> {
@@ -226,7 +212,6 @@ class AuthViewModel @Inject constructor(
                     "DevTime",
                     "error, ${_error.value}"
                 )
-                // Handle unauthorized error (e.g., prompt for login, redirect)
                 return
             }
             403 -> {
@@ -259,7 +244,6 @@ class AuthViewModel @Inject constructor(
                     "DevTime",
                     "error, ${_error.value}"
                 )
-                // Handle semantic errors in request data
                 return
             }
             429 -> {
@@ -268,7 +252,6 @@ class AuthViewModel @Inject constructor(
                     "DevTime",
                     "error, ${_error.value}"
                 )
-                // Handle rate limiting errors (e.g., retry with backoff, display retry countdown)
                 return
             }
             500 -> {
@@ -277,7 +260,6 @@ class AuthViewModel @Inject constructor(
                     "DevTime",
                     "error, ${_error.value}"
                 )
-                // Handle internal server errors (e.g., suggest retrying, log details)
                 return
             }
             502 -> {
@@ -286,7 +268,6 @@ class AuthViewModel @Inject constructor(
                     "DevTime",
                     "error, ${_error.value}"
                 )
-                // Handle bad gateway errors (e.g., retry, notify server administrator)
                 return
             }
             503 -> {
@@ -295,17 +276,14 @@ class AuthViewModel @Inject constructor(
                     "DevTime",
                     "error, ${_error.value}"
                 )
-                // Handle service unavailable errors (e.g., retry with backoff, display retry message)
                 return
             }
-            // Add more cases based on your expected responses and server API documentation
             else -> {
                 _error.value = "Unknown Error: An unexpected error occurred (code: $code). Please try again later."
                 Log.d(
                     "DevTime",
                     "error, ${_error.value}"
                 )
-                // Handle unknown errors (log details, suggest retrying)
                 return
             }
         }

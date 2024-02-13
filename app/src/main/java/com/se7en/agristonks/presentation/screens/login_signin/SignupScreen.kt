@@ -19,6 +19,8 @@ import androidx.compose.material.icons.outlined.Mail
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -59,6 +61,8 @@ fun SignupScreen(
     val selectedType = remember {
         mutableStateOf<UserType?>(null)
     }
+
+    val isSigningUp by authViewModel.isSigningUp.collectAsState()
 
     val usernameError = remember { mutableStateOf("") }
     val emailError = remember { mutableStateOf("") }
@@ -149,11 +153,6 @@ fun SignupScreen(
                 modifier = Modifier
                     .padding(horizontal = 20.dp),
                 onClick = {
-//                    navHostController.navigate(Screens.HomeScreen.route)
-                    Log.d(
-                        "DevTime",
-                        "uname = ${username.value}\nemail = ${email.value}\npass = ${password.value}\nrole = ${selectedType.value?.code}"
-                    )
 
                     selectedType.value?.let {
                         authViewModel.loadDataForSignUp(
@@ -167,7 +166,7 @@ fun SignupScreen(
 
                     authViewModel.signUp()
 
-                    if (!authViewModel.isSigningUp.value) {
+                    if (!isSigningUp) {
                         onBoardingViewModel.saveOnBoardingState(true) // completed = true
                         navHostController.popBackStack()
                         navHostController.navigate(Screens.HomeScreen.route)
