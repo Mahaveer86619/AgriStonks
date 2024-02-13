@@ -1,5 +1,6 @@
 package com.se7en.agristonks.presentation.screens.login_signin
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,15 +15,12 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Mail
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.modifier.modifierLocalConsumer
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,16 +28,23 @@ import androidx.navigation.NavHostController
 import com.se7en.agristonks.presentation.app_components.EmailInputFields
 import com.se7en.agristonks.presentation.app_components.LogInButton
 import com.se7en.agristonks.presentation.app_components.PasswordInputField
-import com.se7en.agristonks.presentation.app_components.UsernameInputFields
+import com.se7en.agristonks.presentation.viewmodels.AuthViewModel
 import com.se7en.agristonks.presentation.viewmodels.OnBoardingViewModel
 import com.se7en.agristonks.uility.Screens
 
 @Composable
-fun LoginScreen(
+fun SignInScreen(
     navHostController: NavHostController,
-    // onBoardingViewModel: OnBoardingViewModel = hiltViewModel()
+    onBoardingViewModel: OnBoardingViewModel = hiltViewModel(),
+    authViewModel: AuthViewModel = hiltViewModel()
 ) {
 
+    val email = remember {
+        mutableStateOf("")
+    }
+    val password = remember {
+        mutableStateOf("")
+    }
 
     Column(
         modifier = Modifier
@@ -81,12 +86,15 @@ fun LoginScreen(
             EmailInputFields(
                 leadingIcon = Icons.Outlined.Mail,
                 placeholder = "Enter your email",
-                label = "Email"
+                label = "Email",
+                text = email
             )
             PasswordInputField(
                 leadingIcon = Icons.Outlined.Lock,
                 placeholder = "Enter your password",
-                label = "Password"
+                label = "Password",
+                text = password,
+                imeNext = false
             )
 
             Row(
@@ -98,7 +106,7 @@ fun LoginScreen(
 
                 Text(
                     text = "Forgot Password",
-                    fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.secondary
                 )
 
@@ -116,7 +124,27 @@ fun LoginScreen(
                 modifier = Modifier
                     .padding(horizontal = 20.dp),
                 onClick = {
-                    //onBoardingViewModel.saveOnBoardingState(true) // completed = true
+                    Log.d("DevTime", "entered details\n${email.value}\n${password.value}")
+
+                    authViewModel.loadDataForSignIn(
+                        email = email.value,
+                        password = password.value
+                    )
+
+                    authViewModel.signIn()
+
+                    if (!authViewModel.isSigningIn.value) {
+                        onBoardingViewModel.saveOnBoardingState(true) // completed = true
+                        navHostController.popBackStack()
+                        navHostController.navigate(Screens.HomeScreen.route)
+                    } else {
+
+                        Log.d(
+                            "DevTime",
+                            "Signing In, loading..."
+                        )
+
+                    }
                 },
                 text = "Sign in"
             )
@@ -147,6 +175,6 @@ fun LoginScreen(
             }
 
         }
-        Spacer(modifier = Modifier.weight(0.25f))
+        Spacer(modifier = Modifier.height(50.dp))
     }
 }

@@ -3,44 +3,43 @@ package com.se7en.agristonks
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.getValue
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.compose.rememberNavController
+import com.se7en.agristonks.presentation.navigation.NavGraph
+import com.se7en.agristonks.presentation.viewmodels.SplashViewModel
 import com.se7en.agristonks.ui.theme.AgriStonksTheme
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private lateinit var splashViewModel: SplashViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        installSplashScreen().setKeepOnScreenCondition {
+            splashViewModel.isLoading.value
+        }
+
         setContent {
             AgriStonksTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
-                }
+
+                val startScreen by splashViewModel.startDestination
+
+                val navController = rememberNavController()
+                NavGraph(navHostController = navController, startDestination = startScreen)
+
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AgriStonksTheme {
-        Greeting("Android")
+    override fun onResume() {
+        super.onResume()
+        // Retrieve the ViewModel instance using ViewModelProvider
+        splashViewModel = ViewModelProvider(this)[SplashViewModel::class.java]
     }
 }

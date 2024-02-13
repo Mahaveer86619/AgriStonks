@@ -1,4 +1,6 @@
 package com.se7en.agristonks.uility
 
-class SideBarItems {
+sealed class SideBarItems(
+
+) {
 }

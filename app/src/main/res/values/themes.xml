@@ -2,4 +2,12 @@
 <resources>
 
     <style name="Theme.AgriStonks" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.MySplashScreen" parent="Theme.AgriStonks">
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/app_logo</item>
+        <item name="windowSplashScreenAnimationDuration">1500</item>
+        <item name="postSplashScreenTheme">@style/Theme.AgriStonks</item>
+    </style>
+
 </resources>
